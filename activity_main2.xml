@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/layout_two"
     android:layout_width="match_parent"
@@ -7,4 +7,25 @@
     android:orientation="horizontal"
     tools:context="com.example.jireh.wheretoeat.Main2Activity">
 
-</LinearLayout>
+    <include
+        android:id="@+id/app_bar"
+        layout="@layout/app_bar"/>
+
+    <ListView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/app_bar"
+        android:id="@+id/list_history"/>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentRight="true"
+        android:text="Clear \nHistory"
+        android:textStyle="bold"
+        android:textColor="#000000"
+        android:background="#FFFF00"
+        android:onClick="clearHistory"/>
+
+</RelativeLayout>

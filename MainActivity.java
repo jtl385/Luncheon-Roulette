@@ -7,46 +7,76 @@ import android.net.Uri;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
+import java.io.FileWriter;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Random;
-import java.util.Scanner;
 
 public class MainActivity extends AppCompatActivity {
 
     ArrayList<EditText> ListOfPlaces;
     Log log;
     RelativeLayout layout;
-    FileOutputStream fstream;
-    String filename = "prevPlaces";
+    String filename = "prevPlaces.txt";
+    File file;
+
+    Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        ListOfPlaces = new ArrayList<EditText>();
+        toolbar = (Toolbar) findViewById(R.id.app_bar);
+        setSupportActionBar(toolbar);
+        ListOfPlaces = new ArrayList<>();
         layout = (RelativeLayout) findViewById(R.id.layout_one);
 
+        file = new File(getFilesDir(), filename);
+
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu1, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_settings) {
+            return true;
+        }
+    }
+
     public void addToList(EditText e) {
         ListOfPlaces.add(e);
     }
-    public void removeFromList(EditText e){
-        ListOfPlaces.remove(e);
-        log.i("list", "Removed from list");
-    }
+
     public void newEditText(View view) {
         //add a new EditText field under the most recent one, as long as
-        //the there is less than 10 EditText fields already on screen.
+        //there is less than 10 EditText fields already on screen.
         if (ListOfPlaces.size() <= 10) {
             EditText e = new EditText(this);
             final RelativeLayout.LayoutParams lparams = new RelativeLayout.LayoutParams(
@@ -54,6 +84,9 @@ public class MainActivity extends AppCompatActivity {
                     RelativeLayout.LayoutParams.WRAP_CONTENT);
             if (!ListOfPlaces.isEmpty()) {
                 lparams.addRule(RelativeLayout.BELOW, ListOfPlaces.get(ListOfPlaces.size() - 1).getId());
+            }
+            else {
+                lparams.addRule(RelativeLayout.BELOW, R.id.app_bar);
             }
             e.setLayoutParams(lparams);
             e.setHint("Enter the name of a restaurant...");
@@ -63,18 +96,8 @@ public class MainActivity extends AppCompatActivity {
         }
         //if 10 EditText fields exist, show an error message
         else{
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setMessage("Can't add more than 10 places");
-            builder.setCancelable(true);
-            builder.setNeutralButton(
-                    "OK",
-                    new DialogInterface.OnClickListener() {
-                        public void onClick(DialogInterface dialog, int id) {
-                            dialog.cancel();
-                        }
-                    });
-            AlertDialog alert = builder.create();
-            alert.show();
+            Toast toast = Toast.makeText(this, "Can't add more than 10 fields", Toast.LENGTH_SHORT);
+            toast.show();
         }
     }
     public void clearPlaces(View view) {
@@ -103,17 +126,25 @@ public class MainActivity extends AppCompatActivity {
             place = ListOfPlaces.get(choice).getText().toString();
         }
 
-        writeToFile(place + "\n");
+        writeToFile(getTime() + " - " + place + " \n");
 
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage("Okay guys, we're going to...\n" + place);
-        builder.setCancelable(true);
+        builder.setCancelable(false);
         final String finalPlace = place;
         builder.setNeutralButton(
                 "Get directions",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         openMap(finalPlace);
+                    }
+                });
+        builder.setPositiveButton(
+                "OK",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        Toast.makeText(MainActivity.this, finalPlace + " added to History", Toast.LENGTH_SHORT).show();
+                        dialog.dismiss();
                     }
                 });
 
@@ -126,7 +157,9 @@ public class MainActivity extends AppCompatActivity {
     public boolean onTouchEvent(MotionEvent event) {
         InputMethodManager imm = (InputMethodManager)getSystemService(Context.
                 INPUT_METHOD_SERVICE);
-        imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        if (getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
         return true;
     }
 
@@ -140,9 +173,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void writeToFile(String data){
         try {
-            fstream = openFileOutput(filename, Context.MODE_PRIVATE);
-            fstream.write(data.getBytes());
-            fstream.close();
+            FileWriter writer = new FileWriter(file, true);
+            writer.append(data);
+            writer.flush();
+            writer.close();
             log.i("io", "successful write");
         } catch (Exception e){
             e.printStackTrace();
@@ -150,24 +184,29 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-    public ArrayList<String> readFile() {
-        File file = new File(getFilesDir(), filename);
-        ArrayList<String> retlist = new ArrayList<>();
-        try {
-            Scanner s = new Scanner(file);
-            while (s.hasNext()) {
-                retlist.add(s.next());
-            }
-            s.close();
-        } catch (Exception e){
-            e.printStackTrace();
-            log.i("io", "failed to read");
-        }
-        return retlist;
-    }
 
     public void openHistory(View view){
         Intent intent = new Intent(this, Main2Activity.class);
         startActivity(intent);
+    }
+
+    public String getTime(){
+        String retString = "";
+        Calendar c = Calendar.getInstance();
+        SimpleDateFormat df = new SimpleDateFormat("EEE, MMM d, h:mm a");
+        retString = df.format(c.getTime());
+
+        return retString;
+    }
+
+    public void martinInUp(View view) {
+        clearPlaces(view);
+        for (int i = 0; i < 10; i++) {
+            newEditText(view);
+        }
+        for (EditText e : ListOfPlaces){
+            e.setText("Chicken Lovers");
+        }
+
     }
 }
