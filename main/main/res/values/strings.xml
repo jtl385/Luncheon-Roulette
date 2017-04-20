@@ -1,0 +1,35 @@
+<resources>
+    <string name="app_name">Luncheon Roulette</string>
+    <string name="help_text">Enter the names of the places you\'d like to eat at into fields.
+        \n\nPress DECIDE FOR ME to have a random place picked for you. </string>
+    <string name="about_text">Welcome to Luncheon Roulette! I\'m the developer Jireh Lo,
+        a computer science student at NYU.
+
+        \n\nI decided to make this app after realizing how
+        long it takes my friends to decide where to eat. Often someone will shout out a place
+        to go, but no one will agree or disagree to the suggestion. I guess no one wants to
+        be the person who decides for the group. So I made an app to decide for us!
+
+        \n\nI hope you enjoy using the app! Special thanks to my brother for
+        drawing the icon, and my church pastor for coming up with the name for the app.
+        If you have any questions or suggestions feel free to comment on the app page.</string>
+    <string name="pref_history">Enable History</string>
+    <string name="pref_vibrate">Enable Vibrations</string>
+    <string name="pref_theme">Background Theme (requires app restart)</string>
+    <string name="pref_theme_default">Dark</string>
+    <string name="pref_speech">Enable Speech</string>
+    <string name="pref_speech_sum">Reads the chosen destination out loud</string>
+
+    <string name="decide_for_me">decide\nfor me</string>
+    <string name="clear">clear</string>
+    <string name="history">history</string>
+
+    <string-array name="pref_theme_entries">
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+    <string-array name="pref_theme_entryValues">
+        <item>Dark</item>
+        <item>Light</item>
+    </string-array>
+</resources>
